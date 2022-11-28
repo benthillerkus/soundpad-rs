@@ -1,0 +1,8 @@
+[workspace]
+
+members = [
+  "soundpad-remote-client","soundpad-bumblebee"
+]
+
+[profile.dev.package.backtrace]
+opt-level = 3
