@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use eyre::eyre;
 use thiserror::Error;
+use tracing::instrument;
 
 pub type ResponseCode = Result<SuccessCode, ErrorCode>;
 
@@ -27,6 +28,7 @@ pub enum ErrorCode {
 impl FromStr for SuccessCode {
     type Err = ErrorCode;
 
+    #[instrument]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match &s[.."R-200".len()] {
             "R-200" => Ok(Self::Ok),

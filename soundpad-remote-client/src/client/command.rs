@@ -1,6 +1,7 @@
 use std::{borrow::Cow, str::FromStr};
 
 use core::time::Duration;
+use eyre::{eyre, Context};
 use thiserror::Error;
 use tokio::{io, sync::oneshot};
 use tracing::{error, info, instrument, warn};
@@ -8,13 +9,11 @@ use tracing::{error, info, instrument, warn};
 use super::{Client, Connection};
 
 #[derive(Debug, Error)]
-pub enum Error<E> {
+pub enum Error {
     #[error("Issue communicating with Soundpad")]
-    Pipe(#[from] io::Error),
-    #[error("Actor is not running")]
-    Dropped,
-    #[error("Could not parse response")]
-    Parse(#[source] E),
+    Connection(#[from] io::Error),
+    #[error(transparent)]
+    Other(#[from] eyre::Report),
 }
 
 #[derive(Debug)]
@@ -56,16 +55,22 @@ impl Command {
     }
 
     #[instrument]
-    pub async fn issue<R>(mut self, client: &Client) -> Result<R, Error<R::Err>>
+    pub async fn issue<R>(
+        mut self,
+        client: &Client,
+    ) -> Result<Result<R, <R as std::str::FromStr>::Err>, Error>
     where
         R: FromStr,
     {
         let (respond_to, rx) = oneshot::channel();
         self.callback = Some(respond_to);
-        client.tx.send(self).await.map_err(|_| Error::Dropped)?;
-        let response = rx.await.map_err(|_| Error::Dropped)??;
+        client.tx.send(self).await.wrap_err(eyre!(
+            "Couldn't submit Command, the actor was probably dropped"
+        ))?;
+        let response = rx.await.wrap_err(eyre!(
+            "Couldn't receive a response, the actor was probably dropped"
+        ))??;
         let response = R::from_str(&response);
-        let response = response.map_err(Error::Parse)?;
         Ok(response)
     }
 }

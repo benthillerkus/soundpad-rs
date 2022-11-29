@@ -20,6 +20,7 @@ pub use builder::ClientBuilder;
 pub(crate) use command::Command;
 pub(crate) use connection::Connection;
 
+// FIXME: Not all of these can happen on each function
 #[derive(Debug, Error)]
 pub enum Error {
     #[error(transparent)]
@@ -32,6 +33,15 @@ pub enum Error {
     BadResponse(#[source] eyre::Report),
     #[error(transparent)]
     Other(#[from] eyre::Report),
+}
+
+impl From<command::Error> for Error {
+    fn from(e: command::Error) -> Self {
+        match e {
+            command::Error::Connection(e) => Self::Connection(e),
+            command::Error::Other(e) => Self::Other(e),
+        }
+    }
 }
 
 type Result<T> = std::result::Result<T, Error>;
@@ -62,42 +72,28 @@ impl Client {
         command: impl ToString + Debug,
         cooldown: Duration,
     ) -> Result<ResponseCode> {
-        use command::Error::*;
-
         match Command::new(command.to_string())
             .with_cooldown(cooldown)
             .issue(self)
-            .await
+            .await?
         {
             Ok(c) => Ok(Ok(c)),
-            Err(Parse(e)) => Ok(Err(e)),
-            Err(e) => Err(match e {
-                Pipe(e) => Error::Connection(e),
-                Dropped => eyre!("Actor & Handles lost connection").into(),
-                Parse(_) => unreachable!(),
-            }),
+            Err(e) => Ok(Err(e)),
         }
     }
 
     #[instrument]
     pub async fn get_sound_list(&self) -> Result<Vec<Sound>> {
-        use command::Error::*;
-
-        match Command::new("GetSoundList()").issue(self).await {
+        match Command::new("GetSoundList()").issue(self).await? {
             Ok(SoundList { sounds }) => Ok(sounds),
-            Err(e) => Err(match e {
-                Pipe(e) => Error::Connection(e),
-                Dropped => eyre!("Actor & Handles lost connection").into(),
-                Parse(e) => {
-                    Error::BadResponse(eyre::Error::from(e).wrap_err("Could not deserialize XML"))
-                }
-            }),
+            Err(e) => Err(Error::BadResponse(
+                eyre::Error::from(e).wrap_err("Could not deserialize XML"),
+            )),
         }
     }
 
     #[instrument]
     pub async fn play_sound(&self, sound: &Sound) -> Result<()> {
-        use command::Error::*;
         use ErrorCode::*;
 
         let msg = format!("DoPlaySound({})", sound.index);
@@ -105,22 +101,19 @@ impl Client {
         match Command::new(msg.clone())
             .with_cooldown(self.debounce)
             .issue(self)
-            .await
+            .await?
         {
             Ok(SuccessCode::Ok) => {
                 info!("{}", sound.title);
                 Ok(())
             }
             Err(e) => Err(match e {
-                Pipe(e) => Error::Connection(e),
-                Dropped => eyre!("Actor & Handles lost connection").into(),
-                Parse(e) => match e {
-                    CommandNotFound(_) | BadRequest => Error::InvalidCommand(msg),
-                    NoContent => Error::NotFound {
-                        missing: format!("{} at index {}", sound.title, sound.index),
-                    },
-                    NotFound(s) | Unknown(s) => eyre!("Soundpad says: {s}").into(),
+                // FIXME: This cannot ever happen
+                CommandNotFound(_) | BadRequest => Error::InvalidCommand(msg),
+                NoContent => Error::NotFound {
+                    missing: format!("{} at index {}", sound.title, sound.index),
                 },
+                NotFound(s) | Unknown(s) => eyre!("Soundpad says: {s}").into(),
             }),
         }
     }
