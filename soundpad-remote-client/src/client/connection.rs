@@ -1,6 +1,6 @@
 use super::Command;
 use derivative::Derivative;
-use tokio::{io, net::windows::named_pipe::NamedPipeClient, sync::mpsc};
+use tokio::{io, net::windows::named_pipe::NamedPipeClient, sync::mpsc, time::Sleep};
 use tracing::instrument;
 
 #[derive(Derivative)]
@@ -13,7 +13,15 @@ pub(crate) struct Connection {
 
 #[instrument]
 pub(crate) async fn run_actor(mut connection: Connection) {
+    let mut sleep: Option<Sleep> = None;
+
     while let Some(command) = connection.rx.recv().await {
+        if !command.cooldown.is_zero() {
+            if let Some(sleep) = sleep.take() {
+                sleep.await;
+            }
+            sleep = Some(tokio::time::sleep(command.cooldown));
+        }
         command.do_work(&mut connection).await;
     }
 }

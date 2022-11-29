@@ -53,10 +53,6 @@ impl Command {
                 Err(e) => error!("Command failed: {:?}", e),
             }
         }
-
-        if !self.cooldown.is_zero() {
-            tokio::time::sleep(self.cooldown).await;
-        }
     }
 
     #[instrument]
