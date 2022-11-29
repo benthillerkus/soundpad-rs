@@ -9,8 +9,13 @@ use tracing_subscriber::prelude::*;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    tracing_subscriber::registry()
-        .with(console_subscriber::spawn())
+    let registry = tracing_subscriber::registry();
+    #[cfg(feature = "console")]
+    {
+        let registry = registry.with(console_subscriber::spawn());
+    }
+
+    registry
         .with(
             tracing_subscriber::fmt::layer()
                 .event_format(format().pretty())
