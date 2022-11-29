@@ -39,5 +39,8 @@ async fn main() -> Result<()> {
     client.play_sound(esel).await?;
     client.play_sound(esel).await?;
     client.play_sound(esel).await?;
+    client
+        .custom_command("DolaySound(1)", client.debounce)
+        .await??;
     Ok(())
 }
