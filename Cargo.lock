@@ -984,6 +984,7 @@ dependencies = [
  "soundpad-remote-client",
  "tokio",
  "tracing",
+ "tracing-error",
  "tracing-subscriber",
 ]
 
@@ -992,6 +993,7 @@ name = "soundpad-remote-client"
 version = "0.1.0"
 dependencies = [
  "derivative",
+ "eyre",
  "serde",
  "serde-xml-rs",
  "thiserror",

@@ -1,7 +1,7 @@
 use super::Command;
 use derivative::Derivative;
-use tokio::{io, net::windows::named_pipe::NamedPipeClient, sync::mpsc, time};
-use tracing::{info, instrument};
+use tokio::{io, net::windows::named_pipe::NamedPipeClient, sync::mpsc};
+use tracing::instrument;
 
 #[derive(Derivative)]
 #[derivative(Debug)]
@@ -9,19 +9,24 @@ pub(crate) struct Connection {
     #[derivative(Debug = "ignore")]
     pub(crate) rx: mpsc::Receiver<Command>,
     pub(crate) pipe: NamedPipeClient,
-    pub(crate) debounce: core::time::Duration,
 }
 
 #[instrument]
-pub(crate) async fn run_actor(mut connection: Connection) -> io::Result<()> {
+pub(crate) async fn run_actor(mut connection: Connection) {
     while let Some(command) = connection.rx.recv().await {
-        info!("Starting to work on command");
-        let _ = command.do_work(&mut connection).await;
+        command.do_work(&mut connection).await;
     }
-    Ok(())
 }
 
 impl Connection {
+    pub(crate) async fn send_and_receive(
+        &mut self,
+        message: impl AsRef<[u8]>,
+    ) -> io::Result<String> {
+        self.send(message).await?;
+        self.receive().await
+    }
+
     pub(crate) async fn send(&self, command: impl AsRef<[u8]>) -> io::Result<()> {
         let bytes = command.as_ref();
         let mut written = 0;

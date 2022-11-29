@@ -2,6 +2,7 @@ use crate::parse_or::ParseOrDefault;
 use serde::de::{Error, Unexpected};
 use serde::Deserialize;
 use std::path::PathBuf;
+use std::str::FromStr;
 use std::time::Duration;
 use time::Date;
 
@@ -9,6 +10,14 @@ use time::Date;
 pub struct SoundList {
     #[serde(rename = "$value")]
     pub sounds: Vec<Sound>,
+}
+
+impl FromStr for SoundList {
+    type Err = serde_xml_rs::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        serde_xml_rs::from_str(s)
+    }
 }
 
 #[derive(Deserialize, Debug, Clone)]
