@@ -6,15 +6,7 @@ use thiserror::Error;
 use tokio::{io, sync::oneshot};
 use tracing::{error, info, instrument, warn};
 
-use super::{Client, Connection};
-
-#[derive(Debug, Error)]
-pub enum Error {
-    #[error("Issue communicating with Soundpad")]
-    Connection(#[from] io::Error),
-    #[error(transparent)]
-    Other(#[from] eyre::Report),
-}
+use super::{Client, Connection, CriticalError};
 
 #[derive(Debug)]
 pub struct Command {
@@ -58,7 +50,7 @@ impl Command {
     pub async fn issue<R>(
         mut self,
         client: &Client,
-    ) -> Result<Result<R, <R as std::str::FromStr>::Err>, Error>
+    ) -> Result<Result<R, <R as std::str::FromStr>::Err>, CriticalError>
     where
         R: FromStr,
     {

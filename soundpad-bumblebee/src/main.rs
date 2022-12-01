@@ -32,15 +32,15 @@ async fn main() -> Result<()> {
 
     info!("Connected to soundpad and ready!");
 
-    let sounds = client.get_sound_list().await?;
+    let sounds = client.get_sound_list().await??;
 
     let esel = sounds.iter().find(|&s| s.title.contains("Esel")).unwrap();
 
-    client.play_sound(esel).await?;
-    client.play_sound(esel).await?;
-    client.play_sound(esel).await?;
+    client.play_sound(esel).await??;
+    client.play_sound(esel).await??;
+    client.play_sound(esel).await??;
     client
         .custom_command("DolaySound(1)", client.debounce)
-        .await??;
+        .await???;
     Ok(())
 }

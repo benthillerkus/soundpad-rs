@@ -15,16 +15,16 @@ use crate::{
 mod builder;
 mod command;
 mod connection;
+mod error;
 
 pub use builder::ClientBuilder;
 pub(crate) use command::Command;
 pub(crate) use connection::Connection;
+pub use error::CriticalError;
 
 // FIXME: Not all of these can happen on each function
 #[derive(Debug, Error)]
 pub enum Error {
-    #[error(transparent)]
-    Connection(#[from] io::Error),
     #[error("{0} is not a valid command")]
     InvalidCommand(String),
     #[error("{missing} does not exist")]
@@ -35,16 +35,7 @@ pub enum Error {
     Other(#[from] eyre::Report),
 }
 
-impl From<command::Error> for Error {
-    fn from(e: command::Error) -> Self {
-        match e {
-            command::Error::Connection(e) => Self::Connection(e),
-            command::Error::Other(e) => Self::Other(e),
-        }
-    }
-}
-
-type Result<T> = std::result::Result<T, Error>;
+type Result<T> = std::result::Result<std::result::Result<T, Error>, CriticalError>;
 
 /// A client for communicating with Soundpad
 ///
@@ -77,18 +68,18 @@ impl Client {
             .issue(self)
             .await?
         {
-            Ok(c) => Ok(Ok(c)),
-            Err(e) => Ok(Err(e)),
+            Ok(c) => Ok(Ok(Ok(c))),
+            Err(e) => Ok(Ok(Err(e))),
         }
     }
 
     #[instrument]
     pub async fn get_sound_list(&self) -> Result<Vec<Sound>> {
         match Command::new("GetSoundList()").issue(self).await? {
-            Ok(SoundList { sounds }) => Ok(sounds),
-            Err(e) => Err(Error::BadResponse(
+            Ok(SoundList { sounds }) => Ok(Ok(sounds)),
+            Err(e) => Ok(Err(Error::BadResponse(
                 eyre::Error::from(e).wrap_err("Could not deserialize XML"),
-            )),
+            ))),
         }
     }
 
@@ -105,9 +96,9 @@ impl Client {
         {
             Ok(SuccessCode::Ok) => {
                 info!("{}", sound.title);
-                Ok(())
+                Ok(Ok(()))
             }
-            Err(e) => Err(match e {
+            Err(e) => Ok(Err(match e {
                 // FIXME: This cannot ever happen
                 CommandNotFound(_) | BadRequest => {
                     panic!("{msg} is not a valid command. If you encounter this, please file a 🐞.")
@@ -116,7 +107,7 @@ impl Client {
                     missing: format!("{} at index {}", sound.title, sound.index),
                 },
                 NotFound(s) | Unknown(s) => eyre!("Soundpad says: {s}").into(),
-            }),
+            })),
         }
     }
 }
