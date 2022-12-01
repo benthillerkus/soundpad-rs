@@ -1,7 +1,7 @@
 use std::{borrow::Cow, str::FromStr};
 
 use core::time::Duration;
-use eyre::{eyre, Context};
+use color_eyre::eyre::{eyre, self, Context};
 use thiserror::Error;
 use tokio::{io, sync::oneshot};
 use tracing::{error, info, instrument, warn};

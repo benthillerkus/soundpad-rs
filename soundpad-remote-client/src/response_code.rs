@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use eyre::eyre;
+use color_eyre::eyre::{self, eyre};
 use thiserror::Error;
 use tracing::instrument;
 

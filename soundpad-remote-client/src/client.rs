@@ -1,6 +1,6 @@
+use color_eyre::eyre::{self, eyre};
 use core::time::Duration;
 use derivative::Derivative;
-use eyre::eyre;
 use std::{borrow::Cow, fmt::Debug};
 use thiserror::Error;
 use tokio::{io, sync::mpsc};
@@ -109,7 +109,9 @@ impl Client {
             }
             Err(e) => Err(match e {
                 // FIXME: This cannot ever happen
-                CommandNotFound(_) | BadRequest => Error::InvalidCommand(msg),
+                CommandNotFound(_) | BadRequest => {
+                    panic!("{msg} is not a valid command. If you encounter this, please file a 🐞.")
+                }
                 NoContent => Error::NotFound {
                     missing: format!("{} at index {}", sound.title, sound.index),
                 },
