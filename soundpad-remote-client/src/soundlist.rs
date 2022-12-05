@@ -1,9 +1,9 @@
 use crate::parse_or::ParseOrDefault;
-use serde::de::{Error, Unexpected};
-use serde::Deserialize;
-use std::path::PathBuf;
-use std::str::FromStr;
-use std::time::Duration;
+use serde::{
+    de::{Error, Unexpected},
+    Deserialize,
+};
+use std::{path::PathBuf, str::FromStr, time::Duration};
 use time::Date;
 
 #[derive(Deserialize, Debug, Clone)]
