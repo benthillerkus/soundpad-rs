@@ -1,8 +1,7 @@
 use color_eyre::eyre::{self, eyre};
 use core::time::Duration;
 use derivative::Derivative;
-use std::{borrow::Cow, fmt::Debug};
-use thiserror::Error;
+use std::fmt::Debug;
 use tokio::{io, sync::mpsc};
 use tracing::{info, instrument};
 
@@ -21,18 +20,43 @@ pub(crate) use command::Command;
 pub(crate) use connection::Connection;
 
 // FIXME: Not all of these can happen on each function
-#[derive(Debug, Error)]
+#[derive(Debug)]
 pub enum Error {
-    #[error(transparent)]
-    Connection(#[from] io::Error),
-    #[error("{0} is not a valid command")]
+    Connection(io::Error),
     InvalidCommand(String),
-    #[error("{missing} does not exist")]
     NotFound { missing: String },
-    #[error("Soundpad sent a bad response")]
-    BadResponse(#[source] eyre::Report),
-    #[error(transparent)]
-    Other(#[from] eyre::Report),
+    BadResponse { source: eyre::Report },
+    Other(eyre::Report),
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Connection(e) => write!(f, "Connection error: {}", e),
+            Self::InvalidCommand(s) => write!(f, "Soundpad cannot handle this command: {}", s),
+            Self::NotFound { missing } => write!(f, "Not found: {}", missing),
+            Self::BadResponse { source: e } => write!(f, "Bad response: {}", e),
+            Self::Other(e) => write!(f, "Other error: {}", e),
+        }
+    }
+}
+
+impl std::error::Error for Error {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Self::Connection(e) => Some(e),
+            Self::InvalidCommand(_) => None,
+            Self::NotFound { .. } => None,
+            Self::BadResponse { source: e } => e.source(),
+            Self::Other(e) => e.source(),
+        }
+    }
+}
+
+impl From<eyre::Report> for Error {
+    fn from(e: eyre::Report) -> Self {
+        Self::Other(e)
+    }
 }
 
 impl From<command::Error> for Error {
@@ -86,9 +110,9 @@ impl Client {
     pub async fn get_sound_list(&self) -> Result<Vec<Sound>> {
         match Command::new("GetSoundList()").issue(self).await? {
             Ok(SoundList { sounds }) => Ok(sounds),
-            Err(e) => Err(Error::BadResponse(
-                eyre::Error::from(e).wrap_err("Could not deserialize XML"),
-            )),
+            Err(e) => Err(Error::BadResponse {
+                source: eyre::Error::from(e).wrap_err("Could not deserialize XML"),
+            }),
         }
     }
 
