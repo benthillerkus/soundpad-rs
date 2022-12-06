@@ -3,7 +3,6 @@ members = ["soundpad-remote-client", "soundpad-bumblebee", "soundpad-xml"]
 
 [workspace.package]
 edition = "2021"
-version = "0.1.0"
 authors = ["Bent Hillerkus"]
 license = "MIT"
 repository = "https://github.com/benthillerkus/soundpad-rs"

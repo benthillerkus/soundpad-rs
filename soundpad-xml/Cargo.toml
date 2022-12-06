@@ -2,7 +2,7 @@
 name = "soundpad-xml"
 description = "A library for deserializing Soundpad's XML files"
 categories = ["parser-implementations"]
-version.workspace = true
+version = "0.1.1"
 edition.workspace = true
 authors.workspace = true
 license.workspace = true

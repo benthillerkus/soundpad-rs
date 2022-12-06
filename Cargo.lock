@@ -1128,7 +1128,7 @@ dependencies = [
 
 [[package]]
 name = "soundpad-bumblebee"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "clap",
  "color-eyre",
@@ -1142,7 +1142,7 @@ dependencies = [
 
 [[package]]
 name = "soundpad-remote-client"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "color-eyre",
  "derivative",
@@ -1156,7 +1156,7 @@ dependencies = [
 
 [[package]]
 name = "soundpad-xml"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "serde",
  "serde-xml-rs",

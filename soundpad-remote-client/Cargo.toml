@@ -1,7 +1,7 @@
 [package]
 name = "soundpad-remote-client"
 description = "A client for the Soundpad remote control interface"
-version.workspace = true
+version = "0.2.0"
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
@@ -17,7 +17,7 @@ tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
 tracing-error = { workspace = true }
 
-soundpad-xml = { path = "../soundpad-xml", version = "0.1.0" }
+soundpad-xml = { path = "../soundpad-xml", version = "0.1.1" }
 thiserror = "1.0.37"
 derivative = "2.2.0"
 windows-sys = "0.42.0"
