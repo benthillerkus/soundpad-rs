@@ -24,9 +24,8 @@ async fn main() -> Result<()> {
     let args = Args::parse();
     let registry = tracing_subscriber::registry();
     #[cfg(feature = "console")]
-    {
-        let registry = registry.with(console_subscriber::spawn());
-    }
+    let registry = registry.with(console_subscriber::spawn());
+
     registry
         .with(
             tracing_subscriber::fmt::layer()
