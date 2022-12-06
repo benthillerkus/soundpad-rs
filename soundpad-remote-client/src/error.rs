@@ -1,3 +1,4 @@
+// FIXME Remove this
 #![allow(unused)]
 
 use color_eyre::eyre;
@@ -29,6 +30,7 @@ pub enum Kind {
 #[derive(Debug)]
 pub struct Error {
     source: TracedError<Kind>,
+    // FIXME Actually provide this - would need nightly features though
     backtrace: Backtrace,
 }
 
