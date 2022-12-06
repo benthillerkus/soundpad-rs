@@ -61,7 +61,7 @@ impl Client {
         let msg = format!("DoPlaySound({})", sound.index);
 
         let _ = Command::new(msg.clone())
-            .with_cooldown(self.debounce)
+            .with_cooldown(self.debounce + sound.duration)
             .issue::<SuccessCode, _>(self)
             .await?;
 
