@@ -1,9 +1,13 @@
 [package]
 name = "soundpad-bumblebee"
+description = "On-the-fly wordmixing through Soundpad"
+categories = ["command-line-utilities", "multimedia::audio"]
 version = "0.1.0"
-edition = "2021"
-authors = ["Bent Hillerkus"]
-license = "MIT"
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = true
 
 [features]
 console = ["dep:console-subscriber"]
@@ -11,11 +15,12 @@ console = ["dep:console-subscriber"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-color-eyre = "0.6.2"
-soundpad-remote-client = { path = "../soundpad-remote-client" }
-tokio = { version = "1.22.0", features = ["full"] }
-tracing = "0.1.37"
+color-eyre = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tracing = { workspace = true }
+tracing-error = { workspace = true }
+
+soundpad-remote-client = { path = "../soundpad-remote-client", version = "0.1.0" }
+clap = { version = "4.0.29", features = ["derive"] }
 tracing-subscriber = "0.3.16"
 console-subscriber = { version = "0.1.8", optional = true }
-tracing-error = "0.2.0"
-clap = { version = "4.0.29", features = ["derive"] }

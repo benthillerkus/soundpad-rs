@@ -1,18 +1,22 @@
 [package]
 name = "soundpad-remote-client"
-version = "0.1.0"
-edition = "2021"
-authors = ["Bent Hillerkus"]
-license = "MIT"
+description = "A client for the Soundpad remote control interface"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tokio = { version = "1.22.0", features = ["net"] }
-soundpad-xml = { path = "../soundpad-xml" }
+color-eyre = "0.6.2"
+tokio = { workspace = true, features = ["net"] }
+tracing = { workspace = true }
+tracing-error = { workspace = true }
+
+soundpad-xml = { path = "../soundpad-xml", version = "0.1.0" }
 thiserror = "1.0.37"
-tracing = "0.1.37"
 winapi = "0.3"
 derivative = "2.2.0"
-color-eyre = "0.6.2"
-tracing-error = "0.2.0"
