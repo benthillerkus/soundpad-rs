@@ -4,6 +4,11 @@
 
 ## What is this?
 
+A CLI that connects to [Soundpad](https://www.leppsoft.com/soundpad/) to play sounds on you behalf.
+
 ## How can I use this
 
-## Development Setup
+0. Make sure Soundpad is installed and running
+1. Install *Bumblebee* via `cargo install soundpad-bumblebee`
+2. Run via `soundpad-bumblebee firework`
+3. 🎇

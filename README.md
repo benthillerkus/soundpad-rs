@@ -2,6 +2,8 @@
 
 > Libraries for interacting with Soundpad
 
+## Usage
+
 ```rust
 #[tokio::main]
 async fn main -> Result<()> {
@@ -13,3 +15,9 @@ async fn main -> Result<()> {
   client.play_sound(sounds[0])
 }
 ```
+
+## Crates
+
+- [`soundpad-remote-client`](https://crates.io/crates/soundpad-remote-client)
+- [`soundpad-xml`](https://crates.io/crates/soundpad-xml)
+- [`soundpad-bumblebee`](https://crates.io/crates/soundpad-bumblebee)
