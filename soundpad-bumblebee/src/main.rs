@@ -1,7 +1,6 @@
 use clap::Parser;
 use color_eyre::eyre::{eyre, Result};
 use soundpad_remote_client::ClientBuilder;
-use std::time::Duration;
 use tracing::{info, metadata::LevelFilter};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{fmt::format, prelude::*};
@@ -9,7 +8,7 @@ use tracing_subscriber::{fmt::format, prelude::*};
 #[derive(Parser)]
 #[command(author, version, about)]
 struct Args {
-    message: String,
+    message: Vec<String>,
 }
 
 #[tokio::main]
@@ -33,22 +32,19 @@ async fn main() -> Result<()> {
     info!("Starting up...");
 
     let client = ClientBuilder::new()
-        .debounce(Duration::from_millis(800))
         .connect()?;
 
     info!("Connected to soundpad and ready!");
 
     let sounds = client.get_sound_list().await?;
 
-    let sound = sounds
-        .iter()
-        .find(|&s| {
-            s.title
-                .to_lowercase()
-                .contains(&args.message.to_lowercase())
-        })
-        .ok_or_else(|| eyre!("Could not find a sound containing {}", args.message))?;
+    for word in args.message {
+        let sound = sounds
+            .iter()
+            .find(|&s| s.title.to_lowercase().contains(&word.to_lowercase()))
+            .ok_or_else(|| eyre!("Could not find a sound containing {}", word))?;
 
-    client.play_sound(sound).await?;
+        client.play_sound(sound).await?;
+    }
     Ok(())
 }
