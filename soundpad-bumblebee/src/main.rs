@@ -43,7 +43,7 @@ async fn main() -> Result<()> {
     let sound = sounds
         .iter()
         .find(|&s| s.title.contains(&args.message))
-        .ok_or(eyre!("Could not find a sound containing {}", args.message))?;
+        .ok_or_else(|| eyre!("Could not find a sound containing {}", args.message))?;
 
     client.play_sound(sound).await?;
     Ok(())
