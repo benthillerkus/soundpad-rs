@@ -9,6 +9,10 @@ license.workspace = true
 repository.workspace = true
 publish = true
 
+[[bin]]
+name = "bumblebee"
+path = "src/main.rs"
+
 [features]
 console = ["dep:console-subscriber"]
 
