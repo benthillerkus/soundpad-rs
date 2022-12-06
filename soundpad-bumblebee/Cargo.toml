@@ -2,6 +2,8 @@
 name = "soundpad-bumblebee"
 version = "0.1.0"
 edition = "2021"
+authors = ["Bent Hillerkus"]
+license = "MIT"
 
 [features]
 console = ["dep:console-subscriber"]
