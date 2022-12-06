@@ -39,7 +39,7 @@ async fn main() -> Result<()> {
 
     let client = ClientBuilder::new().connect()?;
 
-    info!("Connected to soundpad and ready!");
+    info!("Connected to Soundpad and ready!");
 
     let sounds = client.get_sound_list().await?;
     if !args.message.is_empty() {
