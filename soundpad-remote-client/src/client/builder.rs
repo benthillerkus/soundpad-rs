@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use thiserror::Error;
 use tokio::{net::windows::named_pipe::ClientOptions, sync::mpsc};
 use tracing::instrument;
-use winapi::shared::winerror;
+use windows_sys::Win32::Foundation::ERROR_PIPE_BUSY;
 
 use super::{connection, Client, Connection};
 
@@ -55,9 +55,7 @@ impl ClientBuilder {
                     debounce: self.debounce,
                 })
             }
-            Err(e) if e.raw_os_error() == Some(winerror::ERROR_PIPE_BUSY as i32) => {
-                Err(ConnectError::Busy)
-            }
+            Err(e) if e.raw_os_error() == Some(ERROR_PIPE_BUSY as i32) => Err(ConnectError::Busy),
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
                 Err(ConnectError::NotFound { source: e })
             }
