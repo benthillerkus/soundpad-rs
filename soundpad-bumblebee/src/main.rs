@@ -1,13 +1,18 @@
+use std::{net::SocketAddr, sync::Arc};
+
+use axum::{
+    extract::State,
+    http::StatusCode,
+    response::{Html, IntoResponse},
+    routing::{get, post},
+    Form, Router,
+};
 use clap::Parser;
 use color_eyre::eyre::Result;
 use play::play;
-use soundpad_remote_client::ClientBuilder;
-use std::{
-    io::{self, Write},
-    sync::mpsc,
-    thread,
-};
-use tracing::{info, metadata::LevelFilter};
+use serde::Deserialize;
+use soundpad_remote_client::{Client, ClientBuilder, Sound};
+use tracing::{info, instrument, metadata::LevelFilter};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{fmt::format, prelude::*};
 
@@ -17,6 +22,9 @@ mod play;
 #[command(author, version, about)]
 struct Args {
     message: Vec<String>,
+
+    #[clap(short, long, default_value = "127.0.0.1:3003")]
+    address: SocketAddr,
 }
 
 #[tokio::main]
@@ -43,23 +51,48 @@ async fn main() -> Result<()> {
 
     let sounds = client.get_sound_list().await?;
     if !args.message.is_empty() {
-        play(&args.message, &sounds, &client).await?;
+        play(args.message, sounds, client).await?;
     } else {
-        let (sender, receiver) = mpsc::channel();
-        thread::spawn(move || {
-            let mut input = String::new();
-            loop {
-                print!("> ");
-                io::stdout().flush().unwrap();
-                std::io::stdin().read_line(&mut input).unwrap();
-                sender.send(input.clone()).unwrap();
-                input.clear();
-            }
-        });
-        while let Ok(input) = receiver.recv() {
-            let message = input.split_whitespace().collect::<Vec<_>>();
-            play(&message, &sounds, &client).await?;
-        }
+        let shared_state = AppState { client, sounds };
+        let app = Router::new()
+            .route("/", get(show_form).post(accept_form))
+            .with_state(shared_state);
+        info!("Opened web interface on http://{}", args.address);
+        axum::Server::bind(&args.address)
+            .serve(app.into_make_service())
+            .await?;
     }
     Ok(())
+}
+
+async fn show_form() -> Html<&'static str> {
+    let page = include_str!("./index.html");
+    Html(page)
+}
+
+#[derive(Debug, Clone)]
+struct AppState {
+    client: Client,
+    sounds: Vec<Sound>,
+}
+
+#[derive(Deserialize, Debug)]
+struct Input {
+    message: String,
+}
+
+#[instrument]
+async fn accept_form(State(state): State<AppState>, Form(input): Form<Input>) -> impl IntoResponse {
+    info!("Got a request!");
+
+    let message = input
+        .message
+        .clone()
+        .split_whitespace()
+        .map(|s| s.to_owned())
+        .collect::<Vec<_>>();
+    let sounds = state.sounds.clone();
+    let client = state.client.clone();
+    tokio::spawn(play(message, sounds, client));
+    show_form().await
 }
