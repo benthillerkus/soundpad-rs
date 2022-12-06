@@ -1,12 +1,20 @@
-use color_eyre::eyre::Result;
+use clap::Parser;
+use color_eyre::eyre::{eyre, Result};
 use soundpad_remote_client::ClientBuilder;
 use std::time::Duration;
 use tracing::{info, metadata::LevelFilter};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{fmt::format, prelude::*};
 
+#[derive(Parser)]
+#[command(author, version, about)]
+struct Args {
+    message: String,
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
+    let args = Args::parse();
     let registry = tracing_subscriber::registry();
     #[cfg(feature = "console")]
     {
@@ -32,13 +40,11 @@ async fn main() -> Result<()> {
 
     let sounds = client.get_sound_list().await?;
 
-    let esel = sounds.iter().find(|&s| s.title.contains("Esel")).unwrap();
+    let sound = sounds
+        .iter()
+        .find(|&s| s.title.contains(&args.message))
+        .ok_or(eyre!("Could not find a sound containing {}", args.message))?;
 
-    client.play_sound(esel).await?;
-    client.play_sound(esel).await?;
-    client.play_sound(esel).await?;
-    client
-        .custom_command("DolaySound(1)", client.debounce)
-        .await?;
+    client.play_sound(sound).await?;
     Ok(())
 }
