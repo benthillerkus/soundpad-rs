@@ -1,10 +1,9 @@
-use std::{net::SocketAddr, sync::Arc};
+use std::net::SocketAddr;
 
 use axum::{
     extract::State,
-    http::StatusCode,
     response::{Html, IntoResponse},
-    routing::{get, post},
+    routing::get,
     Form, Router,
 };
 use clap::Parser;

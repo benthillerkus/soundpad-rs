@@ -4,7 +4,7 @@
 
 ## What is this?
 
-A CLI that connects to [Soundpad](https://www.leppsoft.com/soundpad/) to play sounds on you behalf.
+A CLI that connects to [Soundpad](https://www.leppsoft.com/soundpad/) to play sounds on your behalf.
 
 ## How can I use this
 
