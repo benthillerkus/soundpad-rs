@@ -1,9 +1,17 @@
 use clap::Parser;
-use color_eyre::eyre::{eyre, Result};
+use color_eyre::eyre::Result;
+use play::play;
 use soundpad_remote_client::ClientBuilder;
+use std::{
+    io::{self, Write},
+    sync::mpsc,
+    thread,
+};
 use tracing::{info, metadata::LevelFilter};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{fmt::format, prelude::*};
+
+mod play;
 
 #[derive(Parser)]
 #[command(author, version, about)]
@@ -19,7 +27,6 @@ async fn main() -> Result<()> {
     {
         let registry = registry.with(console_subscriber::spawn());
     }
-
     registry
         .with(
             tracing_subscriber::fmt::layer()
@@ -31,20 +38,29 @@ async fn main() -> Result<()> {
     color_eyre::install()?;
     info!("Starting up...");
 
-    let client = ClientBuilder::new()
-        .connect()?;
+    let client = ClientBuilder::new().connect()?;
 
     info!("Connected to soundpad and ready!");
 
     let sounds = client.get_sound_list().await?;
-
-    for word in args.message {
-        let sound = sounds
-            .iter()
-            .find(|&s| s.title.to_lowercase().contains(&word.to_lowercase()))
-            .ok_or_else(|| eyre!("Could not find a sound containing {}", word))?;
-
-        client.play_sound(sound).await?;
+    if !args.message.is_empty() {
+        play(&args.message, &sounds, &client).await?;
+    } else {
+        let (sender, receiver) = mpsc::channel();
+        thread::spawn(move || {
+            let mut input = String::new();
+            loop {
+                print!("> ");
+                io::stdout().flush().unwrap();
+                std::io::stdin().read_line(&mut input).unwrap();
+                sender.send(input.clone()).unwrap();
+                input.clear();
+            }
+        });
+        while let Ok(input) = receiver.recv() {
+            let message = input.split_whitespace().collect::<Vec<_>>();
+            play(&message, &sounds, &client).await?;
+        }
     }
     Ok(())
 }
