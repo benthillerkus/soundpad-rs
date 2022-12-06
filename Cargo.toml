@@ -1,7 +1,7 @@
 [workspace]
 
 members = [
-  "soundpad-remote-client","soundpad-bumblebee"
+  "soundpad-remote-client","soundpad-bumblebee", "soundpad-xml"
 ]
 
 [profile.dev.package.backtrace]

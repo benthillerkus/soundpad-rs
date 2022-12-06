@@ -43,13 +43,7 @@ pub struct Sound {
 mod tests {
     use super::*;
 
-    const MYLIST: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
-<Soundlist>
-  <Sound index="1" url="O:\SteamLibrary\steamapps\common\Soundpad\sounds\ba dum tss.mp3" artist="" title="ba dum tss" duration="0:02" addedOn="2022-11-27" lastPlayedOn="2022-11-27" playCount="15"/>
-  <Sound index="2" url="O:\SteamLibrary\steamapps\common\Soundpad\sounds\firework.mp3" artist="" title="firework" duration="0:02" addedOn="2022-11-27" lastPlayedOn="2022-11-27" playCount="1"/>
-  <Sound index="3" url="O:\SteamLibrary\steamapps\common\Soundpad\sounds\cue.mp3" artist="" title="cue" duration="0:03" addedOn="2022-11-27" lastPlayedOn="2022-11-27" playCount="9"/>
-  <Sound index="4" url="O:\SteamLibrary\steamapps\common\Soundpad\sounds\scream.mp3" artist="" title="scream" duration="0:03" addedOn="2022-11-27" lastPlayedOn="2022-11-27" playCount="1"/>
-</Soundlist>"#;
+    const MYLIST: &str = include_str!("SoundList.xml");
 
     fn get_sounds() -> Vec<Sound> {
         let deserialized: SoundList = serde_xml_rs::from_str(MYLIST).unwrap();

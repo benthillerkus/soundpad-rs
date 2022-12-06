@@ -1139,14 +1139,21 @@ version = "0.1.0"
 dependencies = [
  "color-eyre",
  "derivative",
- "serde",
- "serde-xml-rs",
+ "soundpad-xml",
  "thiserror",
- "time",
  "tokio",
  "tracing",
  "tracing-error",
  "winapi",
+]
+
+[[package]]
+name = "soundpad-xml"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde-xml-rs",
+ "time",
 ]
 
 [[package]]
