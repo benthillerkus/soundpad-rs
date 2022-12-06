@@ -2,6 +2,7 @@ use std::borrow::Cow;
 
 use thiserror::Error;
 use tokio::{net::windows::named_pipe::ClientOptions, sync::mpsc};
+use tracing::instrument;
 use winapi::shared::winerror;
 
 use super::{connection, Client, Connection};
@@ -39,6 +40,7 @@ impl ClientBuilder {
         self
     }
 
+    #[instrument]
     pub fn connect(self) -> Result<Client, ConnectError> {
         match ClientOptions::new().open(self.pipe_name.as_ref()) {
             Ok(pipe) => {

@@ -1,11 +1,9 @@
 use color_eyre::eyre::Result;
 use soundpad_remote_client::ClientBuilder;
 use std::time::Duration;
-use tracing::info;
-use tracing::metadata::LevelFilter;
+use tracing::{info, metadata::LevelFilter};
 use tracing_error::ErrorLayer;
-use tracing_subscriber::fmt::format;
-use tracing_subscriber::prelude::*;
+use tracing_subscriber::{fmt::format, prelude::*};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -41,6 +39,6 @@ async fn main() -> Result<()> {
     client.play_sound(esel).await?;
     client
         .custom_command("DolaySound(1)", client.debounce)
-        .await??;
+        .await?;
     Ok(())
 }

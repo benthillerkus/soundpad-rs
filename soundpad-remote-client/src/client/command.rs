@@ -1,20 +1,11 @@
 use std::{borrow::Cow, str::FromStr};
 
 use core::time::Duration;
-use eyre::{eyre, Context};
-use thiserror::Error;
 use tokio::{io, sync::oneshot};
 use tracing::{error, info, instrument, warn};
 
 use super::{Client, Connection};
-
-#[derive(Debug, Error)]
-pub enum Error {
-    #[error("Issue communicating with Soundpad")]
-    Connection(#[from] io::Error),
-    #[error(transparent)]
-    Other(#[from] eyre::Report),
-}
+use crate::error::{eyre, Context, Error};
 
 #[derive(Debug)]
 pub struct Command {
@@ -55,12 +46,10 @@ impl Command {
     }
 
     #[instrument]
-    pub async fn issue<R>(
-        mut self,
-        client: &Client,
-    ) -> Result<Result<R, <R as std::str::FromStr>::Err>, Error>
+    pub async fn issue<R, T>(mut self, client: &Client) -> Result<R, Error>
     where
-        R: FromStr,
+        R: FromStr<Err = T>,
+        T: std::error::Error + Send + Sync + 'static,
     {
         let (respond_to, rx) = oneshot::channel();
         self.callback = Some(respond_to);
@@ -70,7 +59,20 @@ impl Command {
         let response = rx.await.wrap_err(eyre!(
             "Couldn't receive a response, the actor was probably dropped"
         ))??;
-        let response = R::from_str(&response);
+        Ok(R::from_str(&response).wrap_err("Couldn't convert response")?)
+    }
+
+    #[instrument]
+    pub async fn issue_no_convert(mut self, client: &Client) -> Result<String, Error> {
+        let (respond_to, rx) = oneshot::channel();
+        self.callback = Some(respond_to);
+        client.tx.send(self).await.wrap_err(eyre!(
+            "Couldn't submit Command, the actor was probably dropped"
+        ))?;
+        let response = rx.await.wrap_err(eyre!(
+            "Couldn't receive a response, the actor was probably dropped"
+        ))??;
+
         Ok(response)
     }
 }

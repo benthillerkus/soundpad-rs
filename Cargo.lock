@@ -992,8 +992,8 @@ dependencies = [
 name = "soundpad-remote-client"
 version = "0.1.0"
 dependencies = [
+ "color-eyre",
  "derivative",
- "eyre",
  "serde",
  "serde-xml-rs",
  "thiserror",
