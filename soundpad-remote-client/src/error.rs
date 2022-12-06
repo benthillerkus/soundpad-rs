@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use color_eyre::eyre;
 use std::backtrace::Backtrace;
 use thiserror::Error;
