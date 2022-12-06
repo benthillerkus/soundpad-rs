@@ -61,18 +61,4 @@ impl Command {
         ))??;
         Ok(R::from_str(&response).wrap_err("Couldn't convert response")?)
     }
-
-    #[instrument]
-    pub async fn issue_no_convert(mut self, client: &Client) -> Result<String, Error> {
-        let (respond_to, rx) = oneshot::channel();
-        self.callback = Some(respond_to);
-        client.tx.send(self).await.wrap_err(eyre!(
-            "Couldn't submit Command, the actor was probably dropped"
-        ))?;
-        let response = rx.await.wrap_err(eyre!(
-            "Couldn't receive a response, the actor was probably dropped"
-        ))??;
-
-        Ok(response)
-    }
 }
