@@ -34,3 +34,6 @@ serde = { version = "1.0.149", features = ["derive"] }
 
 [package.metadata.workspaces]
 independent = true
+
+[package.metadata.docs.rs]
+targets = ["x86_64-pc-windows-msvc"]

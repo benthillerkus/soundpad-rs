@@ -21,3 +21,6 @@ soundpad-xml = { path = "../soundpad-xml", version = "0.1.1" }
 thiserror = "1.0.37"
 derivative = "2.2.0"
 windows-sys = "0.42.0"
+
+[package.metadata.docs.rs]
+targets = ["x86_64-pc-windows-msvc"]
