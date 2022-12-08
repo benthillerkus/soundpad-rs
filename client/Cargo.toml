@@ -17,7 +17,7 @@ tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
 tracing-error = { workspace = true }
 
-soundpad-xml = { path = "../soundpad-xml", version = "0.1.1" }
+soundpad-xml = { path = "../xml", version = "0.1.1" }
 thiserror = "1.0.37"
 derivative = "2.2.0"
 windows-sys = "0.42.0"

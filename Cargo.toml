@@ -1,5 +1,5 @@
 [workspace]
-members = ["soundpad-remote-client", "soundpad-bumblebee", "soundpad-xml"]
+members = ["client", "bumblebee", "xml"]
 
 [workspace.package]
 edition = "2021"
