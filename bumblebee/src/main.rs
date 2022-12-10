@@ -1,28 +1,22 @@
 use std::net::SocketAddr;
-
-use axum::{
-    extract::State,
-    response::{Html, IntoResponse},
-    routing::get,
-    Form, Router,
-};
 use clap::Parser;
 use color_eyre::eyre::Result;
 use play::play;
-use serde::Deserialize;
-use soundpad_remote_client::{Client, ClientBuilder, Sound};
-use tracing::{info, instrument, metadata::LevelFilter};
+use soundpad_remote_client::ClientBuilder;
+use tracing::{info, metadata::LevelFilter};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{fmt::format, prelude::*};
 
 mod play;
+#[cfg(feature = "web")]
+mod web;
 
 #[derive(Parser)]
 #[command(author, version, about)]
-struct Args {
+pub struct Args {
     message: Vec<String>,
 
-    #[clap(short, long, default_value = "127.0.0.1:3003")]
+    #[clap(short, long, default_value = "127.0.0.1:5338")]
     address: SocketAddr,
 }
 
@@ -52,46 +46,11 @@ async fn main() -> Result<()> {
     if !args.message.is_empty() {
         play(args.message, sounds, client).await?;
     } else {
-        let shared_state = AppState { client, sounds };
-        let app = Router::new()
-            .route("/", get(show_form).post(accept_form))
-            .with_state(shared_state);
-        info!("Opened web interface on http://{}", args.address);
-        axum::Server::bind(&args.address)
-            .serve(app.into_make_service())
-            .await?;
+        #[cfg(feature = "web")]
+        crate::web::run(&args, client, sounds);
     }
+
+    tokio::signal::ctrl_c().await?;
+
     Ok(())
-}
-
-async fn show_form() -> Html<&'static str> {
-    let page = include_str!("./index.html");
-    Html(page)
-}
-
-#[derive(Debug, Clone)]
-struct AppState {
-    client: Client,
-    sounds: Vec<Sound>,
-}
-
-#[derive(Deserialize, Debug)]
-struct Input {
-    message: String,
-}
-
-#[instrument]
-async fn accept_form(State(state): State<AppState>, Form(input): Form<Input>) -> impl IntoResponse {
-    info!("Got a request!");
-
-    let message = input
-        .message
-        .clone()
-        .split_whitespace()
-        .map(|s| s.to_owned())
-        .collect::<Vec<_>>();
-    let sounds = state.sounds.clone();
-    let client = state.client.clone();
-    tokio::spawn(play(message, sounds, client));
-    show_form().await
 }
