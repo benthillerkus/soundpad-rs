@@ -7,7 +7,7 @@ use tracing::instrument;
 #[derivative(Debug)]
 pub(crate) struct Connection {
     #[derivative(Debug = "ignore")]
-    pub(crate) rx: mpsc::Receiver<Command>,
+    pub(crate) rx: mpsc::UnboundedReceiver<Command>,
     pub(crate) pipe: NamedPipeClient,
 }
 

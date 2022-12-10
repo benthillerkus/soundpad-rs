@@ -23,14 +23,12 @@ pub enum ConnectError {
 pub struct ClientBuilder {
     debounce: core::time::Duration,
     pipe_name: Cow<'static, str>,
-    max_queue_len: usize,
 }
 
 impl ClientBuilder {
     pub fn new() -> Self {
         Self {
             pipe_name: PIPE_NAME.into(),
-            max_queue_len: 8,
             ..Default::default()
         }
     }
@@ -44,7 +42,7 @@ impl ClientBuilder {
     pub fn connect(self) -> Result<Client, ConnectError> {
         match ClientOptions::new().open(self.pipe_name.as_ref()) {
             Ok(pipe) => {
-                let (tx, rx) = mpsc::channel(self.max_queue_len);
+                let (tx, rx) = mpsc::unbounded_channel();
 
                 let connection = Connection { rx, pipe };
 

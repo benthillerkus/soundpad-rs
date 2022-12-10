@@ -31,7 +31,7 @@ type Result<T> = std::result::Result<T, Error>;
 #[derivative(Debug, Clone)]
 pub struct Client {
     #[derivative(Debug = "ignore")]
-    pub(crate) tx: mpsc::Sender<Command>,
+    pub(crate) tx: mpsc::UnboundedSender<Command>,
     pub debounce: Duration,
 }
 

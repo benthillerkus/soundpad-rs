@@ -53,7 +53,7 @@ impl Command {
     {
         let (respond_to, rx) = oneshot::channel();
         self.callback = Some(respond_to);
-        client.tx.send(self).await.wrap_err(eyre!(
+        client.tx.send(self).wrap_err(eyre!(
             "Couldn't submit Command, the actor was probably dropped"
         ))?;
         let response = rx.await.wrap_err(eyre!(
