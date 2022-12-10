@@ -5,21 +5,48 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Bumblebee</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%2211 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚕</text></svg>" />
 </head>
 
 <body>
   <h1>Bumblebee</h1>
   <form action="/" method="post">
     <label>
-      Your message:
+      say something:
       <input id="message" type="text" name="message">
     </label>
-    <button type="submit">Submit</button>
+    <button type="submit">go!</button>
   </form>
   <script>
     document.getElementById( "message" ).focus();
   </script>
 </body>
+
+<style>
+  :root {
+    color-scheme: light dark;
+  }
+  
+  body {
+    font-family: sans-serif;
+    margin: 0px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  h1 {
+    text-transform: lowercase;
+  }
+
+  form, input, button {
+    font-family: "Cascadia Code", "Cascadia Mono", "Fira Code", "Fira Mono", Inconsolata, monospace;
+  }
+
+</style>
 
 </html>
