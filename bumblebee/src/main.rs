@@ -1,8 +1,9 @@
-use std::net::SocketAddr;
 use clap::Parser;
 use color_eyre::eyre::Result;
 use play::play;
+use soundpad_cache::CacheBuilder;
 use soundpad_remote_client::ClientBuilder;
+use std::net::SocketAddr;
 use tracing::{info, metadata::LevelFilter};
 use tracing_error::ErrorLayer;
 use tracing_subscriber::{fmt::format, prelude::*};
@@ -41,6 +42,8 @@ async fn main() -> Result<()> {
     let client = ClientBuilder::new().connect()?;
 
     info!("Connected to Soundpad and ready!");
+
+    let cache = CacheBuilder::new().client(client.clone()).init().await?;
 
     let sounds = client.get_sound_list().await?;
     if !args.message.is_empty() {

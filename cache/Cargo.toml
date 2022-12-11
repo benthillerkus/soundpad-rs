@@ -1,0 +1,26 @@
+[package]
+name = "soundpad-cache"
+description = "A SQLite backed cache for Soundpad soundlists"
+version = "0.0.0"
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+color-eyre.workspace = true
+thiserror.workspace = true
+tokio = { workspace = true, features = ["full"] }
+
+soundpad-remote-client = { path = "../client", version = "0.2.0" }
+lofty = "0.9.0"
+rusqlite = { version = "0.28.0", features = ["winsqlite3"] }
+
+[package.metadata.workspaces]
+independent = true
+
+[package.metadata.docs.rs]
+targets = ["x86_64-pc-windows-msvc"]

@@ -12,14 +12,14 @@ publish = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-color-eyre = "0.6.2"
+color-eyre = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
 tracing-error = { workspace = true }
+thiserror = { workspace = true }
 
 soundpad-xml = { path = "../xml", version = "0.1.1" }
-thiserror = "1.0.37"
-derivative = "2.2.0"
+derivative = "2.2.0" # TODO Remove this and customize useage of the instrument macro instead
 windows-sys = "0.42.0"
 
 [package.metadata.docs.rs]

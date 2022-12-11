@@ -1,5 +1,5 @@
 [workspace]
-members = ["client", "bumblebee", "xml"]
+members = ["client", "bumblebee", "xml", "cache"]
 
 [workspace.package]
 edition = "2021"
@@ -10,10 +10,11 @@ description = "Tools for interacting with Soundpad"
 readme = "README.md"
 
 [workspace.dependencies]
+color-eyre = "0.6.2"
+thiserror = "1.0.37"
 tokio = "1.23.0"
 tracing = "0.1.37"
 tracing-error = "0.2.0"
-color-eyre = "0.6.2"
 
 [profile.dev.package.backtrace]
 opt-level = 3

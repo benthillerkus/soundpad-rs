@@ -28,6 +28,7 @@ tracing = { workspace = true }
 tracing-error = { workspace = true }
 
 soundpad-remote-client = { path = "../client", version = "0.2.0" }
+soundpad-cache = { path = "../cache", version = "0.0.0" }
 clap = { version = "4.0.29", features = ["derive"] }
 tracing-subscriber = "0.3.16"
 console-subscriber = { version = "0.1.8", optional = true }
